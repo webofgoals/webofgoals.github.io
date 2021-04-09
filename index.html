@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Vis Network | Edge Styles | Colors</title>
+
+    <script
+      type="text/javascript"
+      src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src=" http://lzma-js.github.io/LZMA-JS/src/lzma.js"
+    ></script>
+
+ <!--    <style type="text/css">
+      #mynetwork {
+        width: 600px;
+        height: 400px;
+        border: 1px solid lightgray;
+      }
+
+      p {
+        max-width: 800px;
+      }
+    </style> -->
+        <style>
+      body {
+        color: #d3d3d3;
+        font: 12pt arial;
+        background-color: #222222;
+      }
+
+      #mynetwork {
+        width: 800px;
+        height: 800px;
+        border: 1px solid #444444;
+        background-color: #222222;
+      }
+    </style>
+        <link
+      rel="stylesheet"
+      href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <p>
+      Web of goals go brrrr
+    </p>
+    <div id="generate_url" onclick="generate_base64_network()">gen</div>
+    <div id="code"></div>
+
+    <div id="mynetwork"></div>
+
+    <script type="text/javascript">
+      var network = null
+       var options = {
+        nodes: {
+          shape: "dot",
+          size: 20,
+          font: {
+            size: 15,
+            color: "#ffffff",
+          },
+          borderWidth: 2,
+        },
+        edges: {
+          width: 2,
+        },
+        groups: {
+          diamonds: {
+            color: { background: "red", border: "white" },
+            shape: "diamond",
+          },
+          dotsWithLabel: {
+            label: "I'm a dot!",
+            shape: "dot",
+            color: "cyan",
+          },
+          mints: { color: "rgb(0,255,140)" },
+          icons: {
+            shape: "icon",
+            icon: {
+              face: "FontAwesome",
+              code: "\uf0c0",
+              size: 50,
+              color: "orange",
+            },
+          },
+          source: {
+            shape: "icon",
+            icon: {
+              face: "FontAwesome",
+              code: "\uf1b3",
+              size: 50,
+              color: "gold",
+            },
+          },
+        },
+        manipulation: {
+          enabled: true,
+        }
+      };
+      //
+      //  var options = {
+      //   nodes: {
+      //     shape: "circle",
+      //   },
+      // };
+      const queryString = window.location.search;
+      if(queryString != "") {
+        console.log("Querystring not empty")
+
+        //console.log(queryString);
+        //console.log(queryString.split("=")[1])
+        const network_base64 = queryString.split("=")[1].replace(/-/g,"=")
+        //console.log(network_base64_compressed)
+        const network = atob(network_base64)
+        importNetwork(network);
+
+        // my_lzma = new LZMA("http://lzma-js.github.io/LZMA-JS/src/lzma_worker.js");
+        //http://lzma-js.github.io/LZMA-JS/demos/simple_demo.html
+        // my_lzma.decompress(network_compressed, function on_decompress_complete(network) {
+        //     console.log("decompressed")
+        //     console.log(network)
+        //     importNetwork(network);
+        //   }, function on_decompress_progress_update(percent) {
+        //       /// Decompressing progress code goes here.
+        //       // document.title = "Decompressing: " + (percent * 100) + "%";
+        //   });
+      } else {
+        var nodes = [
+        { id: 0, label: "0", group: "source" },
+        { id: 1, label: "1", group: "icons" },
+        { id: 2, label: "2", group: "icons" },
+        { id: 3, label: "3", group: "icons" },
+        { id: 4, label: "4", group: "icons" },
+        { id: 5, label: "5", group: "icons" },
+        { id: 6, label: "6", group: "icons" },
+        { id: 7, label: "7", group: "icons" },
+        { id: 8, label: "8", group: "icons" },
+        { id: 9, label: "9", group: "icons" },
+        { id: 10, label: "10", group: "mints" },
+        { id: 11, label: "11", group: "mints" },
+        { id: 12, label: "12", group: "mints" },
+        { id: 13, label: "13", group: "mints" },
+        { id: 14, label: "14", group: "mints" },
+        { id: 15, group: "dotsWithLabel" },
+        { id: 16, group: "dotsWithLabel" },
+        { id: 17, group: "dotsWithLabel" },
+        { id: 18, group: "dotsWithLabel" },
+        { id: 19, group: "dotsWithLabel" },
+        { id: 20, label: "diamonds", group: "diamonds" },
+        { id: 21, label: "diamonds", group: "diamonds" },
+        { id: 22, label: "diamonds", group: "diamonds" },
+        { id: 23, label: "diamonds", group: "diamonds" },
+      ];
+      var edges = [
+        { from: 1, to: 0 },
+        { from: 2, to: 0 },
+        { from: 4, to: 3 },
+        { from: 5, to: 4 },
+        { from: 4, to: 0 },
+        { from: 7, to: 6 },
+        { from: 8, to: 7 },
+        { from: 7, to: 0 },
+        { from: 10, to: 9 },
+        { from: 11, to: 10 },
+        { from: 10, to: 4 },
+        { from: 13, to: 12 },
+        { from: 14, to: 13 },
+        { from: 13, to: 0 },
+        { from: 16, to: 15 },
+        { from: 17, to: 15 },
+        { from: 15, to: 10 },
+        { from: 19, to: 18 },
+        { from: 20, to: 19 },
+        { from: 19, to: 4 },
+        { from: 22, to: 21 },
+        { from: 23, to: 22 },
+        { from: 23, to: 0 },
+      ];
+
+      // create a network
+      var container = document.getElementById("mynetwork");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+     
+         // create an array with nodes
+      // var nodes = new vis.DataSet([
+      //   { id: 1, label: "node\none", shape: "box", color: "#97C2FC" },
+      //   { id: 2, label: "node\ntwo", shape: "circle", color: "#FFFF00" },
+      //   { id: 3, label: "node\nthree", shape: "diamond", color: "#FB7E81" },
+      //   {
+      //     id: 4,
+      //     label: "node\nfour",
+      //     shape: "dot",
+      //     size: 10,
+      //     color: "#7BE141",
+      //   },
+      //   { id: 5, label: "node\nfive", shape: "ellipse", color: "#6E6EFD" },
+      //   { id: 6, label: "node\nsix", shape: "star", color: "#C2FABC" },
+      //   { id: 7, label: "node\nseven", shape: "triangle", color: "#FFA807" },
+      //   {
+      //     id: 8,
+      //     label: "node\neight",
+      //     shape: "triangleDown",
+      //     color: "#6E6EFD",
+      //   },
+      // ]);
+
+      // // create an array with edges
+      // var edges = new vis.DataSet([
+      //   { from: 1, to: 8, color: { color: "red" } },
+      //   { from: 1, to: 3, color: "rgb(20,24,200)" },
+      //   {
+      //     from: 1,
+      //     to: 2,
+      //     color: { color: "rgba(30,30,30,0.2)", highlight: "blue" },
+      //   },
+      //   { from: 2, to: 4, color: { inherit: "to" } },
+      //   { from: 2, to: 5, color: { inherit: "from" } },
+      //   { from: 5, to: 6, color: { inherit: "both" } },
+      //   { from: 6, to: 7, color: { color: "#ff0000", opacity: 0.3 } },
+      //   { from: 6, to: 8, color: { opacity: 0.3 } },
+      // ]);
+
+     
+      network = new vis.Network(container, data, options);
+      
+      generate_base64_network()
+    
+      // pretty print node data
+      // var exportValue = JSON.stringify(nodes, undefined, 2);
+      // console.log(exportValue)
+      // let objJsonB64 = btoa(exportValue)
+      // console.log(objJsonB64)
+      // document.getElementById("code").innerHTML = "<a href='?aap="+objJsonB64+"'>link for sharing</a>"
+      // var compression_mode = 1,
+      // my_lzma = new LZMA("http://lzma-js.github.io/LZMA-JS/src/lzma_worker.js");
+
+
+//     /// First, let's compress it.
+//     my_lzma.compress(exportValue, compression_mode, function on_compress_complete(result) {
+//           console.log("normal compression")
+
+//         console.log(result);
+//         let objJsonB64 = btoa(result)
+//         console.log(objJsonB64)
+
+//         objJsonB64 = objJsonB64.replace(/=/g,"-")
+//         console.log(objJsonB64)
+//         document.getElementById("code").innerHTML = "<a href='?aap="+objJsonB64+"'>link for sharing</a>"
+        
+//         // /// Now, let's try to decompress it to make sure it works both ways.
+//         // my_lzma.decompress(result, function on_decompress_complete(result) {
+//         //     alert("Decompressed: " + result);
+//         // }, function on_decompress_progress_update(percent) {
+//         //     /// Decompressing progress code goes here.
+//         //     document.title = "Decompressing: " + (percent * 100) + "%";
+//         // });
+//     }, function on_compress_progress_update(percent) {
+//         /// Compressing progress code goes here.
+// //        document.title = "Compressing: " + (percent * 100) + "%";
+//     });
+      }
+
+      function generate_base64_network() {
+        console.log("party")
+        var node_list = []
+        var edge_list = []
+        // var nodes = objectToArray(network.getPositions());
+        // nodes.forEach(addConnections);
+        // console.log("dumping edges")
+        network.body.data.nodes.forEach(function bla(node) {
+          node_list.push(node)
+        });
+        network.body.data.edges.forEach(function bla(edge) {
+          edge_list.push(edge)
+        });
+
+        collection = {
+          "nodes": node_list,
+          "edges": edge_list
+
+        }
+
+
+
+        var collection_string = JSON.stringify(collection, undefined, 2);
+        let collection_base64 = btoa(collection_string)
+        collection_base64 = collection_base64.replace(/=/g,"-")
+
+        document.getElementById("code").innerHTML = "<a href='?aap="+collection_base64+"'>link for sharing</a>"
+
+      }
+      function objectToArray(obj) {
+        return Object.keys(obj).map(function (key) {
+          obj[key].id = key;
+          return obj[key];
+        });
+      }
+
+      function addConnections(elem, index) {
+        // need to replace this with a tree of the network, then get child direct children of the element
+        elem.connections = network.getConnectedNodes(index);
+      }
+      function importNetwork(data_string) {
+        var container = document.getElementById("mynetwork");
+        var inputData = JSON.parse(data_string);
+        console.log(inputData)
+
+        var data = {
+        nodes: inputData["nodes"],
+        edges: inputData["edges"],
+      };
+
+       network = new vis.Network(container, data, options);
+      }
+
+      function getNodeData(data) {
+        var networkNodes = [];
+
+        data.forEach(function (elem, index, array) {
+          networkNodes.push({
+            id: elem.id,
+            label: elem.id,
+            x: elem.x,
+            y: elem.y,
+            label: elem.label,
+            shape: elem.shape,
+            color: elem.code
+          });
+        });
+
+        return new vis.DataSet(networkNodes);
+      }
+
+      function getNodeById(data, id) {
+        for (var n = 0; n < data.length; n++) {
+          if (data[n].id == id) {
+            // double equals since id can be numeric or string
+            return data[n];
+          }
+        }
+
+        throw "Can not find id '" + id + "' in data";
+      }
+
+      function getEdgeData(data) {
+        var networkEdges = [];
+
+        data.forEach(function (node) {
+          // add the connection
+
+          node.connections.forEach(function (connId, cIndex, conns) {
+            networkEdges.push({ from: node.id, to: connId });
+            let cNode = getNodeById(data, connId);
+
+            var elementConnections = cNode.connections;
+
+            // remove the connection from the other node to prevent duplicate connections
+            var duplicateIndex = elementConnections.findIndex(function (
+              connection
+            ) {
+              return connection == node.id; // double equals since id can be numeric or string
+            });
+
+            if (duplicateIndex != -1) {
+              elementConnections.splice(duplicateIndex, 1);
+            }
+          });
+        });
+
+        return new vis.DataSet(networkEdges);
+      }
+
+      
+     
+
+
+    </script>
+  </body>
+</html>
