@@ -49,6 +49,7 @@
     </p>
     <div id="generate_url" onclick="generate_base64_network()">gen</div>
     <div id="code"></div>
+    <textarea id="box"></textarea>
 
     <div id="mynetwork"></div>
 
@@ -293,7 +294,16 @@
         let collection_base64 = btoa(collection_string)
         collection_base64 = collection_base64.replace(/=/g,"-")
 
-        document.getElementById("code").innerHTML = "<a href='?aap="+collection_base64+"'>link for sharing</a>"
+        document.getElementById("code").innerHTML = "<a href='?wog="+collection_base64+"'>link for sharing</a>"
+
+        var base_url = window.location;
+
+        document.getElementById("box").value = base_url+"?wog="+collection_base64
+
+        let url_enc = encodeURI("https://www.w3docs.com/snippets/javascript/how-to-encode-javascript-url.html");
+
+        API_KEY="bb7d42b9d75ae308b40c91c956737230e232f"
+        file_get_contents("https://cutt.ly/api/api.php?key=bb7d42b9d75ae308b40c91c956737230e232f&short="+url_enc, console.log);
 
       }
       function objectToArray(obj) {
@@ -377,7 +387,12 @@
         return new vis.DataSet(networkEdges);
       }
 
-      
+      async function file_get_contents(uri, callback) {
+          let res = await fetch(uri),
+              ret = await res.text(); 
+          return callback ? callback(ret) : ret; // a Promise() actually.
+      }
+
      
 
 
