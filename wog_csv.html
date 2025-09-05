@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>vis-network — nodes (id,name,type) + edges (from,to,label)</title>
+  <script src="vis-network.10.0.1.min.js"></script>
+  <style>
+    html,body { height:100%; margin:0; font-family: Arial, sans-serif; }
+    #mynetwork { width:100vw; height:100vh; border:1px solid #ddd; }
+    #controls { position:absolute; z-index:10; padding:8px; background:rgba(255,255,255,0.95); }
+    input { margin:4px 0; display:block; }
+  </style>
+</head>
+<body>
+<div id="controls">
+  <label>Nodes CSV (id,name,type): <input id="nodesFile" type="file" accept=".csv,text/csv" /></label>
+  <label>Edges CSV (from,to,label) — from/to are node IDs: <input id="edgesFile" type="file" accept=".csv,text/csv" /></label>
+  <button id="renderBtn">Render</button>
+</div>
+
+<div id="mynetwork"></div>
+
+<script>
+// Simple CSV parser for basic CSVs (no quoted newlines). Use PapaParse for robust parsing.
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim() !== '');
+  if (lines.length === 0) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  return lines.slice(1).map(line => {
+    const cols = line.split(',').map(c => c.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = cols[i] ?? "");
+    return obj;
+  });
+}
+
+// Map type -> vis node shape & style
+function shapeForType(type) {
+  if (!type) return { shape: 'box', borderRadius: 8, color: { background: '#D3D3D3' } };
+  const t = String(type).toLowerCase();
+  switch (t) {
+    case 'activity': return { shape: 'hexagon', color: { background: '#FFD700' } };
+    case 'capital': return { shape: 'ellipse', color: { background: '#FFB6C1' } };
+    case 'resource': return { shape: 'box', borderRadius: 8, color: { background: '#97C2FC' } };
+    case 'skill': return { shape: 'ellipse', color: { background: '#C8E6C9' } };
+    case 'physical state': return { shape: 'hexagon', color: { background: '#E0E0E0' } };
+    case 'mental state': return { shape: 'hexagon', color: { background: '#B3E5FC' } };
+    case 'object': return { shape: 'circle', color: { background: '#ABB6C1' } };
+    case 'world state': return { shape: 'ellipse', color: { background: '#EEB671' } };
+
+    default: return { shape: 'box', borderRadius: 8, color: { background: '#E8E8E8' } };
+  }
+}
+
+function buildFromFiles(nodesRows, edgesRows) {
+  // nodesRows expected keys: id, name, type
+  // edgesRows expected keys: from, to, label (from/to are ids)
+  const nodeMap = new Map();
+
+  (nodesRows || []).forEach(r => {
+    const id = (r.id ?? '').trim();
+    const name = (r.name ?? '').trim();
+    const type = (r.type ?? '').trim();
+    if (!id) return;
+    nodeMap.set(id, { id, name: name || id, type });
+  });
+
+  // Ensure nodes referenced in edges exist; create placeholder if missing
+  (edgesRows || []).forEach(r => {
+    const from = (r.from ?? '').trim();
+    const to = (r.to ?? '').trim();
+    if (from && !nodeMap.has(from)) nodeMap.set(from, { id: from, name: from, type: '' });
+    if (to && !nodeMap.has(to)) nodeMap.set(to, { id: to, name: to, type: '' });
+  });
+
+  const nodes = Array.from(nodeMap.values()).map(n => {
+    const base = {
+      id: n.id,
+      label: String(n.name),
+      font: { color: '#000', size: 14, face: 'Arial' },
+      margin: 8
+    };
+    const style = shapeForType(n.type);
+    return { ...base, ...style };
+  });
+
+  const edges = (edgesRows || []).map(r => ({
+    from: (r.from ?? '').trim(),
+    to: (r.to ?? '').trim(),
+    label: (r.label ?? '').trim(),
+    arrows: 'to'
+  })).filter(e => e.from && e.to);
+
+  return { nodes, edges };
+}
+
+function renderNetwork(containerId, data) {
+  const container = document.getElementById(containerId);
+  const options = {
+    nodes: { shapeProperties: { borderRadius: 8 } },
+    edges: {
+      arrows: { to: { enabled: true, scaleFactor: 0.6 } },
+      smooth: { type: 'dynamic' },
+      font: { align: 'top' },
+      color: { color: '#848484' }
+    },
+    physics: { stabilization: true, barnesHut: { gravitationalConstant: -8000, springConstant:0.01 } },
+    interaction: { hover: true, multiselect: true },
+    layout: {randomSeed: 2}
+  };
+  if (window.network) window.network.destroy();
+  window.network = new vis.Network(container, data, options);
+  return window.network;
+}
+
+// Wire up file inputs + render button
+const nodesFileEl = document.getElementById('nodesFile');
+const edgesFileEl = document.getElementById('edgesFile');
+const renderBtn = document.getElementById('renderBtn');
+
+let nodesCSV = null;
+let edgesCSV = null;
+
+nodesFileEl.addEventListener('change', async e => {
+  const f = e.target.files[0];
+  nodesCSV = f ? await f.text() : null;
+});
+
+edgesFileEl.addEventListener('change', async e => {
+  const f = e.target.files[0];
+  edgesCSV = f ? await f.text() : null;
+});
+
+renderBtn.addEventListener('click', () => {
+  const nodesRows = nodesCSV ? parseCSV(nodesCSV) : [];
+  const edgesRows = edgesCSV ? parseCSV(edgesCSV) : [];
+  const data = buildFromFiles(nodesRows, edgesRows);
+  renderNetwork('mynetwork', data);
+});
+
+// Optional: load from URLs by setting nodesCSV/edgesCSV with fetched text
+// fetch('nodes.csv').then(r=>r.text()).then(t=>nodesCSV=t);
+// fetch('edges.csv').then(r=>r.text()).then(t=>edgesCSV=t);
+</script>
+</body>
+</html>
